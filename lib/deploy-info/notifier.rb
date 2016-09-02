@@ -9,42 +9,15 @@
 # All rights reserved - Do Not Redistribute
 #
 
+require 'deploy-info/git'
 require 'json'
 require 'net/http'
 require 'uri'
-require 'github_api'
 
 module DeployInfo
   # => Deploy Notification Methods
   module Notifier
     extend self
-
-    ######################
-    # =>    Github    <= #
-    ######################
-
-    def ghclient
-      # => Instantiate a new GitHub Client
-      Github::Client.new
-    end
-
-    def revision
-      # => Grab the Supplied Revision
-      rev = Config.query_params['revision'] || return
-      return rev unless Config.query_params['gh_repo']
-
-      # => Break down the Params
-      org, repo = Config.query_params['gh_repo'].split('/').map { |r| String(r) }
-      return rev unless org && repo
-
-      begin
-        # => Pull the Shorthand SHA
-        ghclient.git_data.trees.get(org, repo, rev).first[1][0, 7]
-      rescue Github::Error::NotFound
-        # => Return the Supplied Revision if Github Borks
-        rev
-      end
-    end
 
     ########################
     # =>    NewRelic    <= #
@@ -68,7 +41,7 @@ module DeployInfo
       # => Build the JSON Payload
       request.body = {
         deployment: {
-          revision: revision,
+          revision: Git.revision,
           user: Config.query_params['user'],
           description: Config.query_params['comment']
         }
@@ -89,7 +62,7 @@ module DeployInfo
       data = {}
       data[:access_token] = Config.query_params['rb_token']
       data[:environment] = Config.query_params['environment']
-      data[:revision] = revision
+      data[:revision] = Git.revision
       data[:local_username] = Config.query_params['user']
       data[:comment] = Config.query_params['comment']
 
