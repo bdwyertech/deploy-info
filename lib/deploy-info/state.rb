@@ -27,14 +27,14 @@ module DeployInfo
       @state ||= Util.parse_json_config(Config.state_file) || []
     end
 
-    def find_state(node)
-      state.detect { |h| h[:name].casecmp(node).zero? }
+    def find_state(app)
+      state.detect { |h| h[:name].casecmp(app).zero? }
     end
 
     def update_state(hash) # rubocop: disable AbcSize
-      # => Check if Node Already Exists
+      # => Check if App Already Exists
       existing = find_state(hash[:name])
-      if existing # => Update the Existing Node
+      if existing # => Update the Existing App
         state.delete(existing)
         audit_string = [DateTime.now, hash[:creator]].join(' - ')
         existing[:last_modified] = existing[:last_modified].is_a?(Array) ? existing[:last_modified].take(5).unshift(audit_string) : [audit_string]
@@ -49,9 +49,9 @@ module DeployInfo
     end
 
     # => Add Node to the State
-    def add_state(node, user, params) # rubocop: disable MethodLength, AbcSize
-      # => Create a Node-State Object
-      (n = {}) && (n[:name] = node)
+    def add_state(app, user, params) # rubocop: disable MethodLength, AbcSize
+      # => Create an App-State Object
+      (n = {}) && (n[:name] = app)
       n[:created] = DateTime.now
       n[:creator] = user
       # => Parse our Field Values
@@ -60,24 +60,24 @@ module DeployInfo
       end
       # => Parse our Booleans
       %w(protected).each do |opt|
-        n[opt.to_sym] = true if params[opt] && %w(true 1).any? { |x| params[opt].to_s.casecmp(x) == 0 }
+        n[opt.to_sym] = true if params[opt] && %w(true 1).any? { |x| params[opt].to_s.casecmp(x).zero? }
       end
       # => Build the Updated State
       update_state(n)
-      # => Return the Added Node
+      # => Return the Added App
       find_state(node)
     end
 
-    # => Remove Node from the State
-    def delete_state(node)
-      # => Find the Node
-      existing = find_state(node)
-      return 'Node not present in state' unless existing
-      # => Delete the Node from State
+    # => Remove App from the State
+    def delete_state(app)
+      # => Find the App
+      existing = find_state(app)
+      return 'App not present in state' unless existing
+      # => Delete the App from State
       state.delete(existing)
       # => Write Out the Updated State
       write_state
-      # => Return the Deleted Node
+      # => Return the Deleted App
       existing
     end
 

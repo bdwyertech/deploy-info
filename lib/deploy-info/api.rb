@@ -22,7 +22,7 @@ require 'deploy-info/state'
 # => Deployment Information Provider for RunDeck
 module DeployInfo
   # => HTTP API
-  class API < Sinatra::Base # rubocop: disable ClassLength
+  class API < Sinatra::Base
     #######################
     # =>    Sinatra    <= #
     #######################
