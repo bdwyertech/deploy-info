@@ -80,10 +80,6 @@ module DeployInfo
       # => Grab the Default Values
       default = DeployInfo::Config.options
 
-      puts cli.config[:config_file]
-      puts json_config
-      puts 'AYO!'
-
       # => Merge Configuration (JSON File Wins)
       config = [default, json_config, cli.config].compact.reduce(:merge)
 
