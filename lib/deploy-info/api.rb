@@ -110,14 +110,11 @@ module DeployInfo
         resp.to_json
       end
 
-      # => Retrieve Currently Deployed Revision
-      get '/revision' do
-        # => PLACEHOLDER
-      end
-
       # => Parse Revision
-      post '/revision' do
-        Notifier.revision
+      [:get, :post].each do |method|
+        send method, '/revision' do
+          Git.revision.to_json
+        end
       end
     end
   end
