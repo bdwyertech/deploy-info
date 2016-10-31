@@ -64,8 +64,7 @@ module DeployInfo
       option :environment,
              short: '-e ENV',
              long: '--env ENV',
-             description: 'Sets the environment for deploy-info to execute under. Use "development" for more logging.',
-             default: 'production'
+             description: "Sets the environment for deploy-info to execute under. Use 'development' for more logging. (Default: #{Config.environment})"
     end
 
     # => Launch the Application
@@ -75,28 +74,28 @@ module DeployInfo
       cli.parse_options(argv)
 
       # => Parse JSON Config File (If Specified & Exists)
-      json_config = Util.parse_json_config(cli.config[:config_file])
+      json_config = Util.parse_json_config(cli.config[:config_file] || Config.config_file)
 
       # => Grab the Default Values
-      default = DeployInfo::Config.options
+      default = Config.options
 
-      # => Merge Configuration (JSON File Wins)
+      # => Merge Configuration (CLI Wins)
       config = [default, json_config, cli.config].compact.reduce(:merge)
 
       # => Apply Configuration
-      DeployInfo::Config.setup do |cfg|
+      Config.setup do |cfg|
         cfg.config_file         = config[:config_file]
         cfg.cache_timeout       = config[:cache_timeout].to_i
         cfg.bind                = config[:bind]
         cfg.port                = config[:port]
         cfg.state_file          = config[:state_file]
-        cfg.environment         = config[:environment].to_sym
+        cfg.environment         = config[:environment].to_sym.downcase
         cfg.github_oauth_token  = config[:github_oauth_token]
         cfg.nr_api_key          = config[:nr_api_key]
       end
 
       # => Launch the API
-      DeployInfo::API.run!
+      API.run!
     end
   end
 end

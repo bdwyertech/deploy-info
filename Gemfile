@@ -1,8 +1,6 @@
 source 'https://rubygems.org'
 
 gem 'github_api' # => Github API Interaction
-# => gem 'hashie' # => Data Structure
-# => gem 'logify' # => Logging
 gem 'mixlib-cli' # => Option Parsing
 gem 'rack-cache' # => Cache Responses
 gem 'sinatra' # => Web Server
